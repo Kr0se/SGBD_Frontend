@@ -11,6 +11,7 @@ import { RegisterComponent } from './register/register.component';
 const routes: Routes = [
   {path: "login", component: LoginComponent},
   {path: "fileupload", component: FileUploadComponent},
+  {path: "register", component: RegisterComponent},
   {path: "**", redirectTo: "login"}
 ]
 
