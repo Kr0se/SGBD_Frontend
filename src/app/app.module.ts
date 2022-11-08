@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
   {path: "login", component: LoginComponent},
@@ -17,7 +18,8 @@ const routes: Routes = [
   declarations: [
     AppComponent,
     LoginComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
