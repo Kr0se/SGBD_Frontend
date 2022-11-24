@@ -7,13 +7,6 @@ body{
 h2{
   padding-top: 1.5rem;
 }
-a{
-  color: #333;
-}
-a:hover{
-  color: #da5767;
-  text-decoration: none;
-}
 .card{
   border: 0.40rem solid #f8f9fa;
   top: 10%;
@@ -29,22 +22,8 @@ a:hover{
 
     color: #000000;
     background-color: #ffffff;
-    border: 3px solid #da5767;
+    border: 3px solid #2e68d5;
     outline: 0;
     box-shadow: none;
-
-}
-
-.btn{
-  padding: 0.6rem 1.2rem;
-  background: #da5767;
-  border: 2px solid #da5767;
-}
-.btn-primary:hover {
-
-    
-    background-color: #df8c96;
-    border-color: #df8c96;
-  transition: .3s;
 
 }

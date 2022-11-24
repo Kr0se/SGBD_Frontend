@@ -1,26 +1,30 @@
 <div class="container">
   <div class="row justify-content-center">
-  <div class="col-md-5">
-   <div class="card">
-     <h2 class="card-title text-center">Login</h2>
-      <div class="card-body py-md-4">
-       <form _lpchecked="1">
-        <div class="form-group">
-             <input type="email" class="form-control" id="email" placeholder="Email">
-             <br>
-                            </div>
-                            
-                          
-   <div class="form-group">
-     <input type="password" class="form-control" id="password" placeholder="Password">
-     <br>
-   </div>
-   <div class="d-flex flex-row align-items-center justify-content-between">
-    <a href="../register">Register</a>
-                                <button class="btn btn-primary">Create Account</button>
-          </div>
-       </form>
-     </div>
+    <div class="col-md-5">
+      <div class="card">
+        <h2 class="card-title text-center">Login</h2>
+          <div class="card-body py-md-4">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+              <div class="form-group">
+                  <input formControlName="email" type="email" class="form-control" id="email" placeholder="Email">
+                  <br>
+              </div>
+                                  
+              <div class="form-group">
+                <input formControlName="password" type="password" class="form-control" id="password" placeholder="Password">
+                <br>
+              </div>
+
+              <div class="">
+                <button class="btn btn-primary" type="submit">Login</button>
+              </div>
+          </form>
+        </div>  
+        <div class="float-end">
+          <button class="btn btn-secondary float-end m-3" (click)="goToPage('register')">Register</button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 </div>
