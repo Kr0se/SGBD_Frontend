@@ -1,3 +1,6 @@
+
+
+<!--  
 <div class="text-center">
   <input class="form-control" type="file" (change)="onChange($event)">
   <button (click)="onUpload()" class="btn btn-success">
@@ -5,13 +8,64 @@
   </button>
 </div>
 
-<!-- Shareable short link of  uploaded file -->
 <div class="container text-center jumbotron" *ngIf="shortLink">
   <h2> Visit Here</h2>
   <a href="{{shortLink}}">{{shortLink}}</a>
 </div>
 
-<!--Flag variable is used here-->
 <div class="container" *ngIf="loading">
   <h3>Loading ...</h3>
+</div>-->
+
+<div>
+  <header>
+    <div class="row">
+
+      <div class="col-4">
+        <div>
+          <img src="/assets/images/logo.png" alt="logo" width="200" height="50">
+        </div>
+      </div>
+
+      <div class="col-4 ">
+        <nav class="navbar justify-content-center">
+          <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search File" aria-label="Search">
+          </form>
+        </nav>
+      </div>
+
+      <div class="col-4">
+        <div>
+          <button class="btn btn-danger mt-2 float-end" (click)="goToPage('login')">Log Out</button>
+        </div>
+      </div>
+      
+    </div>
+
+  </header>
+  <hr>
+  <div class="row">
+    <div class="col-2">
+      <div>
+        <button class="btn btn-primary mt-3" (click)="createFolder()">Create Folder</button>
+      </div>
+      <div>
+        <button class="btn btn-primary mt-3" (click)="uploadFile()">Upload File</button>
+      </div>
+      
+    </div>
+    <div class="col-10">
+      <div class="mt-3">
+        <h4>Folders</h4>
+      </div>
+      <div class="mt-3">
+        <h4>Files</h4>
+      </div>
+      <div class="mt-3">
+        <h4>Files shared by other users</h4>
+      </div>
+    </div>
+  </div>
+
 </div>

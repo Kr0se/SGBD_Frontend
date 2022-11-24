@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FileUploadService } from 'src/app/services/file-upload.service';
   
 @Component({
@@ -14,7 +15,10 @@ export class FileUploadComponent implements OnInit {
     file: File | any = null; // Variable to store file
   
     // Inject service 
-    constructor(private fileUploadService: FileUploadService) { }
+    constructor(
+        private fileUploadService: FileUploadService,
+        private router: Router
+    ) { }
   
     ngOnInit(): void {
     }
@@ -39,5 +43,19 @@ export class FileUploadComponent implements OnInit {
                 }
             }
         );
+    }
+
+    goToPage(pageName: string){
+        this.router.navigateByUrl(pageName);
+    }
+
+    createFolder(){
+        console.log('create folder');
+
+    }
+
+    uploadFile(){
+        console.log('upload file');
+
     }
 }
