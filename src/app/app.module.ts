@@ -8,7 +8,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { RegisterComponent } from './register/register.component';
-import { AuthService } from './services/auth/auth.service';
+import { AuthService } from './services/auth.service';
+import { CoreService } from './services/core.service';
 
 const routes: Routes = [
   {path: "login", component: LoginComponent},
@@ -30,7 +31,7 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     ReactiveFormsModule
   ],
-  providers: [AuthService],
+  providers: [AuthService, CoreService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

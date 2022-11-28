@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FileUploadService } from 'src/app/services/file-upload.service';
+import { User } from '../model/user';
+import { CoreService } from '../services/core.service';
   
 @Component({
     selector: 'app-file-upload',
@@ -13,14 +15,23 @@ export class FileUploadComponent implements OnInit {
     shortLink: string = "";
     loading: boolean = false; // Flag variable
     file: File | any = null; // Variable to store file
+
+    private userAuth: User;
   
     // Inject service 
     constructor(
         private fileUploadService: FileUploadService,
-        private router: Router
-    ) { }
+        private router: Router,
+        private coreService: CoreService
+    ) {
+        this.userAuth = this.router.getCurrentNavigation()!.extras.state || {};
+        console.log(this.userAuth);
+    }
   
     ngOnInit(): void {
+        this.coreService.getUser(this.userAuth.username!).subscribe((res: any) => {
+            console.log(res);
+        })
     }
   
     // On file Select
@@ -57,5 +68,10 @@ export class FileUploadComponent implements OnInit {
     uploadFile(){
         console.log('upload file');
 
+    }
+
+    logOut(){
+        this.userAuth = {};
+        this.goToPage("login")
     }
 }

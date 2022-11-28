@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthService } from '../services/auth.service';
 import { User } from '../model/user';
 
 @Component({
@@ -38,9 +38,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(){
-    console.log("submit");
-    console.log(this.form.value);
-
     this.user.username = this.form.controls['username'].value;
     this.user.password = this.form.controls['password'].value;
 
@@ -48,7 +45,7 @@ export class LoginComponent implements OnInit {
       console.log(res);
       if(res){
         this.invalidCredentials = false;
-        //this.goToPage("fileupload");
+        this.router.navigate(['fileupload'], { state: this.user });
       }
       else {
         this.invalidCredentials = true;
