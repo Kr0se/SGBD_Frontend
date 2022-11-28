@@ -10,12 +10,15 @@
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
               <div class="form-group">
-                  <input formControlName="email" type="email" class="form-control" id="email" placeholder="Email">
+                  <input formControlName="username" type="text" class="form-control" id="username" placeholder="Username">
                   <br>
               </div>
                                   
               <div class="form-group">
                 <input formControlName="password" type="password" class="form-control" id="password" placeholder="Password">
+                <div *ngIf="showInvalidCredentialsMessage()">
+                  <span class="text-danger">Invalid credentials</span>
+                </div>
                 <br>
               </div>
 
