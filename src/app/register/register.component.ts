@@ -23,11 +23,11 @@ export class RegisterComponent implements OnInit {
   };
 
   form = new FormGroup({
-    name: new FormControl('david', [Validators.required]),
-    surname: new FormControl('camps', [Validators.required]),
-    username: new FormControl('dcamps10', [Validators.required]),
-    password: new FormControl('123456', [Validators.required, Validators.minLength(5)]),
-    confirmPassword: new FormControl('123456', [Validators.required, Validators.minLength(5)]),
+    name: new FormControl('', [Validators.required]),
+    surname: new FormControl('', [Validators.required]),
+    username: new FormControl('', [Validators.required]),
+    password: new FormControl('', [Validators.required, Validators.minLength(5)]),
+    confirmPassword: new FormControl('', [Validators.required, Validators.minLength(5)]),
   });
 
   constructor(

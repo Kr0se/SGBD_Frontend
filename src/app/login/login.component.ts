@@ -21,8 +21,8 @@ export class LoginComponent implements OnInit {
   };
 
   form = new FormGroup({
-    username: new FormControl('dcamps10', [Validators.required]),
-    password: new FormControl('123456', [Validators.required]),
+    username: new FormControl('', [Validators.required]),
+    password: new FormControl('', [Validators.required]),
   });
 
   constructor(
