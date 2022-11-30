@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
-import { User } from 'src/app/model/user';
+import { UserAuth } from 'src/app/model/userAuth';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  registerUser(user: User): Observable<boolean> {
+  registerUser(user: UserAuth): Observable<boolean> {
     return this.http.post<boolean>(this.registerUrl, user)
       .pipe(
         catchError((error: any, caught: Observable<any>): Observable<any> => {
@@ -24,7 +24,7 @@ export class AuthService {
       }))
   }
 
-  loginUser(user: User): Observable<boolean> {
+  loginUser(user: UserAuth): Observable<boolean> {
     return this.http.post<boolean>(this.loginUrl, user)
       .pipe(
         catchError((error: any, caught: Observable<any>): Observable<any> => {

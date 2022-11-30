@@ -4,7 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { IfStmt } from '@angular/compiler';
 import { asLiteral } from '@angular/compiler/src/render3/view/util';
 import { AuthService } from '../services/auth.service';
-import { User } from '../model/user';
+import { UserAuth } from '../model/userAuth';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +15,7 @@ export class RegisterComponent implements OnInit {
 
   usernameExists: boolean = false;
 
-  private user: User = {
+  private user: UserAuth = {
     name: '',
     surname: '',
     username: '',

@@ -1,6 +1,13 @@
+export interface Carpeta {
+    nom: string;
+    subCarpetes: Carpeta[];
+    videos: any[];
+}
+
 export interface User {
-    name?: string,
-    surname?: string,
-    username?: string,
-    password?: string
+    username: string;
+    password: string;
+    name: string;
+    surname: string;
+    mainCarpeta: Carpeta;
 }

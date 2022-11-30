@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { User } from '../model/user';
+import { UserAuth } from '../model/userAuth';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
 
   private invalidCredentials = false;
 
-  private user: User = {
+  private user: UserAuth = {
     name: '',
     surname: '',
     username: '',
@@ -45,7 +45,9 @@ export class LoginComponent implements OnInit {
       console.log(res);
       if(res){
         this.invalidCredentials = false;
-        this.router.navigate(['fileupload'], { state: this.user });
+        sessionStorage.setItem("username", JSON.stringify(this.form.controls['username'].value));
+        sessionStorage.setItem("password", JSON.stringify(this.form.controls['password'].value));
+        this.goToPage("fileupload");
       }
       else {
         this.invalidCredentials = true;
