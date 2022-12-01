@@ -38,4 +38,28 @@ export class CoreService {
       }))
   }
 
+  removeFolder(username: string, folder: Folder): Observable<User> {
+    return this.http.post<User>(this.addFolderUrl.concat("/" + username + "/removeFolder"), folder)
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  renameFolder(username: string, folder: Folder): Observable<User> {
+    return this.http.post<User>(this.addFolderUrl.concat("/" + username + "/renameFolder"), folder)
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
 }

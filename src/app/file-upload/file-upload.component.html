@@ -17,7 +17,8 @@
   <h3>Loading ...</h3>
 </div>-->
 
-<div class="modal modal-backdrop" tabindex="-1" role="dialog" [ngStyle]="{'display':displayStylePopup}">
+<!-- POP UP CREATE FOLDER -->
+<div class="modal modal-backdrop" tabindex="-1" role="dialog" [ngStyle]="{'display':displayStylePopupCreateFolder}">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -35,6 +36,45 @@
         </div>
     </form>
     </div>
+  </div>
+</div>
+
+<!-- POP UP RENAME/DELETE FOLDER -->
+<div class="modal modal-backdrop" tabindex="-1" role="dialog" [ngStyle]="{'display':displayStylePopupDeleteFolder}">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Delete folder</h4>
+      </div>
+      <div class="modal-body">
+        <p>Do yo really want to delete the folder '{{folderDeleteRename.nom}}'?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="closePopupDeleteFolderSubmit()"> Delete </button>
+      <button type="button" class="btn btn-danger" (click)="closePopupDeleteFolder()"> Close </button>
+    </div>
+    </div>
+
+    <div class="modal-content mt-2">
+      <div class="modal-header">
+        <h4 class="modal-title">Rename folder</h4>
+      </div>
+      <form [formGroup]="formRenameFolder" (ngSubmit)="closePopupRenameFolderSubmit()">
+        <div class="modal-body">
+            <div class="form-group">
+              <input formControlName="folderName" class="form-control" type="text" placeholder="Folder name">
+            </div>
+            <div class="form-group mt-2">
+              <input formControlName="newFolderName" class="form-control" type="text" placeholder="New folder name">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!formRenameFolder.valid">Rename</button>
+          <button type="button" class="btn btn-danger" (click)="closePopupRenameFolder()"> Close </button>
+        </div>
+    </form>
+    </div>
+
   </div>
 </div>
 
@@ -82,10 +122,10 @@
         <h3>Folders:</h3>
         <h5>Current folder: {{currentFolderName}}</h5>
         <div class="row">
-          <div class="col-3" *ngFor="let folder of currentSubFolders">
-            <div class="card mt-3 pointer">
+          <div class="col-3" *ngFor="let folder of currentSubFolders" (contextmenu)="rigthClickCard($event, folder);" (dblclick)="doubleClick(folder)">
+            <div id="card" class="card mt-3">
               <div class="card-body">
-                <h5 class="card-title">{{folder.nom}}</h5>
+                <h5 class="card-title text-center">{{folder.nom}}</h5>
               </div>
             </div>
           </div>
@@ -102,3 +142,4 @@
   </div>
 
 </div>
+

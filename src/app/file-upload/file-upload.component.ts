@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { LocationStrategy } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FileUploadService } from 'src/app/services/file-upload.service';
@@ -37,27 +38,51 @@ export class FileUploadComponent implements OnInit {
             videos: [],
         }
     };
-
+    
+    //Application Paths
     currentPath!: string; // main es l'inicial
     currentFolderName!: string;
     currentSubFolders!: Carpeta[];
 
     //CreateFolder
-    displayStylePopup = "none";
+    displayStylePopupCreateFolder = "none";
     formCreateFolder = new FormGroup({
         folderName: new FormControl('', [Validators.required]),
     });
-    
+
+    //DeleteFolder
+    displayStylePopupDeleteFolder = "none";
+    folderDeleteRename: Carpeta = {
+        nom: '',
+        subCarpetes: [],
+        videos: []
+    };
+
+    //RenameFolder
+    formRenameFolder = new FormGroup({
+        folderName: new FormControl('', [Validators.required]),
+        newFolderName: new FormControl('', [Validators.required]),
+    });  
+
   
     // Inject service 
     constructor(
         private fileUploadService: FileUploadService,
         private router: Router,
-        private coreService: CoreService
+        private coreService: CoreService,
     ) {
         this.userAuth.username = JSON.parse(sessionStorage.getItem("username")!);
         this.userAuth.password = JSON.parse(sessionStorage.getItem("password")!);
         //console.log(this.userAuth);
+
+        window.addEventListener('popstate', (event) => {
+            // The popstate event is fired each time when the current history entry changes.
+        
+            // logout or do any thing you like
+            console.log("putyaaaa");
+            console.log(history);
+
+        }, false);
         
     }
   
@@ -118,27 +143,28 @@ export class FileUploadComponent implements OnInit {
     }
 
     openPopupCreateFolder() {
-        this.displayStylePopup = "block";
+        this.displayStylePopupCreateFolder = "block";
     }
 
     closePopupCreateFolder() {
-        this.displayStylePopup = "none";
+        this.displayStylePopupCreateFolder = "none";
     }
 
     closePopupCreateFolderSubmit() {
-        this.displayStylePopup = "none";
+        this.displayStylePopupCreateFolder = "none";
         console.log(this.formCreateFolder.value);
 
         let folder: Folder = {
             path: this.currentPath,
-            folderName: this.formCreateFolder.controls['folderName'].value
+            folderName: this.formCreateFolder.controls['folderName'].value,
+            newFolderName: ''
         }
 
         this.coreService.addFolder(this.user.username, folder).subscribe((res: User) => {
             console.log(res);
             this.user = res;
             this.updateCurrentSubfolders();
-        })
+        });
         this.formCreateFolder.reset();
     }
 
@@ -157,4 +183,80 @@ export class FileUploadComponent implements OnInit {
         this.currentSubFolders = resSubFolders;
         //console.log(this.subFolders);
     }
+
+
+    rigthClickCard($event: MouseEvent, folder: Carpeta) {       
+        /* Use the following properties to differentiate between left and right click respectively.
+        * $event.type will be "click" or "contextmenu"
+        * $event.which will be "1" or "3"
+        */
+      
+        // To prevent browser's default contextmenu
+        $event.preventDefault();
+        $event.stopPropagation();
+
+        this.formRenameFolder.controls['folderName'].setValue(folder.nom);
+        this.formRenameFolder.controls['folderName'].disable();
+
+        // To show your modal or popover or any page
+        this.folderDeleteRename = folder;
+        this.openPopupDeleteFolder();
+    }
+
+    openPopupDeleteFolder() {
+        this.displayStylePopupDeleteFolder = "block";
+    }
+
+    closePopupDeleteFolder() {
+        this.displayStylePopupDeleteFolder = "none";
+        this.formRenameFolder.reset();
+    }
+
+    closePopupDeleteFolderSubmit() {
+        this.displayStylePopupDeleteFolder = "none";
+        let folder: Folder = {
+            path: this.currentPath,
+            folderName: this.folderDeleteRename.nom,
+            newFolderName: ''
+        }
+
+        this.coreService.removeFolder(this.user.username, folder).subscribe((res: User) => {
+            console.log(res);
+            this.user = res;
+            this.updateCurrentSubfolders();
+        });
+    }
+
+    closePopupRenameFolder() {
+        this.displayStylePopupDeleteFolder = "none";
+        this.formRenameFolder.reset();
+    }
+
+    closePopupRenameFolderSubmit() {
+        this.displayStylePopupDeleteFolder = "none";
+        let folder: Folder = {
+            path: this.currentPath,
+            folderName: this.folderDeleteRename.nom,
+            newFolderName: this.formRenameFolder.controls['newFolderName'].value
+        }
+
+        console.log(folder);
+        
+
+        this.coreService.renameFolder(this.user.username, folder).subscribe((res: User) => {
+            console.log(res);
+            this.user = res;
+            this.updateCurrentSubfolders();
+        });
+
+        this.formRenameFolder.reset();
+    }
+
+    doubleClick(folder: Carpeta){
+        this.currentPath = this.currentPath.concat("/").concat(folder.nom);
+        this.currentFolderName = folder.nom;
+        this.currentSubFolders = folder.subCarpetes;
+    }
+
+
 }

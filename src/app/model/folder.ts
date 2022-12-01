@@ -1,4 +1,5 @@
 export interface Folder {
     path: string,
-    folderName: string
+    folderName: string,
+    newFolderName: string
 }

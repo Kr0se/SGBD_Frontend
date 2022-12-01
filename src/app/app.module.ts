@@ -23,7 +23,7 @@ const routes: Routes = [
     AppComponent,
     LoginComponent,
     FileUploadComponent,
-    RegisterComponent
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
