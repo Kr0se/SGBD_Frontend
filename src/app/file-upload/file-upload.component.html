@@ -120,12 +120,19 @@
     <div class="col-10">
       <div class="mt-3">
         <h3>Folders:</h3>
-        <h5>Current folder: {{currentFolderName}}</h5>
+        <h5>Current path: {{showCurrentPath()}}</h5>
         <div class="row">
           <div class="col-3" *ngFor="let folder of currentSubFolders" (contextmenu)="rigthClickCard($event, folder);" (dblclick)="doubleClick(folder)">
             <div id="card" class="card mt-3">
               <div class="card-body">
-                <h5 class="card-title text-center">{{folder.nom}}</h5>
+                <div class="row">
+                  <div class="col-3">
+                    <img class="center" src="/assets/images/carpeta.png" alt="carpeta" height="45px" width="65px">
+                  </div>
+                  <div class="col-9 mt-2">
+                    <h5 class="card-title text-center">{{folder.nom}}</h5>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

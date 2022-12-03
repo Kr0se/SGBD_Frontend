@@ -10,11 +10,12 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { RegisterComponent } from './register/register.component';
 import { AuthService } from './services/auth.service';
 import { CoreService } from './services/core.service';
+import { AuthGuard } from './guard/auth-guard.guard';
 
 const routes: Routes = [
   {path: "login", component: LoginComponent},
-  {path: "fileupload", component: FileUploadComponent},
   {path: "register", component: RegisterComponent},
+  {path: "fileupload", component: FileUploadComponent, canActivate: [AuthGuard]}, //si no es passa la autenticacio del guard, no poden accedir a aquest recurs
   {path: "**", redirectTo: "login"}
 ]
 

@@ -44,6 +44,10 @@ export class FileUploadComponent implements OnInit {
     currentFolderName!: string;
     currentSubFolders!: Carpeta[];
 
+    currentPathStack: string[] = [];
+    currentFolderNameStack: string[] = [];
+    currentSubFoldersStack: Carpeta[][] = [];
+
     //CreateFolder
     displayStylePopupCreateFolder = "none";
     formCreateFolder = new FormGroup({
@@ -70,20 +74,11 @@ export class FileUploadComponent implements OnInit {
         private fileUploadService: FileUploadService,
         private router: Router,
         private coreService: CoreService,
+        private location: LocationStrategy
     ) {
         this.userAuth.username = JSON.parse(sessionStorage.getItem("username")!);
         this.userAuth.password = JSON.parse(sessionStorage.getItem("password")!);
         //console.log(this.userAuth);
-
-        window.addEventListener('popstate', (event) => {
-            // The popstate event is fired each time when the current history entry changes.
-        
-            // logout or do any thing you like
-            console.log("putyaaaa");
-            console.log(history);
-
-        }, false);
-        
     }
   
     ngOnInit(): void {
@@ -97,6 +92,22 @@ export class FileUploadComponent implements OnInit {
             this.currentFolderName = "main";
             this.currentSubFolders = this.user.mainCarpeta.subCarpetes;
         })
+
+        history.pushState(null, "", window.location.href);
+        // check if back or forward button is pressed.
+        this.location.onPopState(() => {
+            history.pushState(null, "", window.location.href);
+
+            if(this.currentPathStack.length > 0){
+                this.currentPath = this.currentPathStack[this.currentPathStack.length-1];
+                this.currentFolderName = this.currentFolderNameStack[this.currentFolderNameStack.length-1];
+                this.currentSubFolders = this.currentSubFoldersStack[this.currentSubFoldersStack.length-1];
+
+                this.currentPathStack.pop();
+                this.currentFolderNameStack.pop();
+                this.currentSubFoldersStack.pop();
+            }
+        });
     }
   
     // On file Select
@@ -119,6 +130,11 @@ export class FileUploadComponent implements OnInit {
                 }
             }
         );
+    }
+
+    showCurrentPath(): string {
+        if(this.currentPath == undefined) return "";
+        else return this.currentPath.replaceAll("/", " -> ");
     }
 
     goToPage(pageName: string){
@@ -253,6 +269,10 @@ export class FileUploadComponent implements OnInit {
     }
 
     doubleClick(folder: Carpeta){
+        this.currentPathStack.push(this.currentPath.toString());
+        this.currentFolderNameStack.push(this.currentFolderName);
+        this.currentSubFoldersStack.push(this.currentSubFolders);
+
         this.currentPath = this.currentPath.concat("/").concat(folder.nom);
         this.currentFolderName = folder.nom;
         this.currentSubFolders = folder.subCarpetes;
