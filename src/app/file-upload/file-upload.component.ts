@@ -276,6 +276,11 @@ export class FileUploadComponent implements OnInit {
         this.currentPath = this.currentPath.concat("/").concat(folder.nom);
         this.currentFolderName = folder.nom;
         this.currentSubFolders = folder.subCarpetes;
+
+        this.coreService.getUser(this.user.username).subscribe((res: User) => {
+            this.user = res;
+            this.updateCurrentSubfolders();
+        });
     }
 
 
