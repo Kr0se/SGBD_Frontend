@@ -11,7 +11,8 @@ import { UserAuth } from '../model/userAuth';
 })
 export class LoginComponent implements OnInit {
 
-  private invalidCredentials = false;
+  invalidCredentials = false;
+  accountCreatedSuccessfully = false;
 
   private user: UserAuth = {
     name: '',
@@ -28,7 +29,12 @@ export class LoginComponent implements OnInit {
   constructor(
     private router: Router,
     private authServie: AuthService
-  ){ }
+  ){    
+    if(JSON.parse(sessionStorage.getItem("accountCreatedSuccessfully")!)){
+      this.showAccountCreatedSuccessfullyMessage();
+      sessionStorage.removeItem("accountCreatedSuccessfully");
+    }
+  }
 
   ngOnInit(): void {
   }
@@ -50,14 +56,27 @@ export class LoginComponent implements OnInit {
         this.goToPage("fileupload");
       }
       else {
-        this.invalidCredentials = true;
+        this.showInvalidCredentialsMessage();
       }
     })
-    
   }
 
-  showInvalidCredentialsMessage(): boolean{
-    return this.invalidCredentials;
+  showInvalidCredentialsMessage(){
+    this.invalidCredentials = true;
+    setTimeout(() => {
+      this.invalidCredentials = false;
+    }, 3000);
+  }
+
+  showAccountCreatedSuccessfullyMessage(){
+    this.accountCreatedSuccessfully = true;
+    setTimeout(() => {
+      this.accountCreatedSuccessfully = false;
+    }, 4000);
+  }
+
+  showRequiredField(field: string): boolean{
+    return this.form.controls[field].touched && !this.form.controls[field].value;
   }
 
 }

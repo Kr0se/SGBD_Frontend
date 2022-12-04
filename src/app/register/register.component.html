@@ -4,39 +4,49 @@
       <div>
         <img class="rounded mx-auto d-block" src="/assets/images/logo.png" alt="logo" width="250" height="65">
       </div>
-      <div class="card">
+      <div class="card negativeMargin">
         <h2 class="card-title text-center">Register</h2>
           <div class="card-body py-md-4">
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
               <div class="form-group">
-                  <input formControlName="name" type="text" class="form-control" id="name" placeholder="Name">
-                  <br>
+                <label class="form-label ms-1">Name:</label>
+                <span class="text-danger ms-2" *ngIf="showRequiredField('name')" >(Required field)</span>
+                <input formControlName="name" type="text" class="form-control" id="name" placeholder="Name">
+                <br>
               </div>
                                   
               <div class="form-group">
+                <label class="form-label ms-1">Surname:</label>
+                <span class="text-danger ms-2" *ngIf="showRequiredField('surname')" >(Required field)</span>
                 <input formControlName="surname" type="text" class="form-control" id="surname" placeholder="Surname">
                 <br>
               </div>
 
               <div class="form-group">
+                <label class="form-label ms-1">Username:</label>
+                <span class="text-danger ms-2" *ngIf="showRequiredField('username')" >(Required field)</span>
                 <input formControlName="username" type="text" class="form-control" id="username" placeholder="Username">
                 <br>
               </div>
 
               <div class="form-group">
+                <label class="form-label ms-1">Password (minimum 5 characters):</label>
+                <span class="text-danger ms-2" *ngIf="showRequiredField('password')" >(Required field)</span>
                 <input formControlName="password" type="password" class="form-control" id="password" placeholder="Password">
                 <br>
               </div>
 
               <div class="form-group">
+                <label class="form-label ms-1">Confirm Password:</label>
+                <span class="text-danger ms-2" *ngIf="showRequiredField('confirmPassword')" >(Required field)</span>
                 <input formControlName="confirmPassword" type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password">
                 <div *ngIf="showError()">
-                  <span class="text-danger">Passwords do not match</span>
+                  <span class="text-danger ms-1">Passwords do not match</span>
                   <br><br>
                 </div>
-                <div *ngIf="showUsernameExistsMessage()">
-                  <span class="text-danger">Username already exists</span>
+                <div *ngIf="usernameExists">
+                  <span class="text-danger ms-1">Username already exists</span>
                 </div>
                 <br>
               </div>

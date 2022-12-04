@@ -52,10 +52,11 @@ export class RegisterComponent implements OnInit {
       console.log(res);
       if(res){
         this.usernameExists = false;
+        sessionStorage.setItem("accountCreatedSuccessfully", JSON.stringify(true));
         this.goToPage("login");
       }
       else {
-        this.usernameExists = true;
+        this.showUsernameExistsMessage();
       }
     })
   }
@@ -68,8 +69,15 @@ export class RegisterComponent implements OnInit {
     return this.form.valid && this.form.controls['password'].value !== this.form.controls['confirmPassword'].value;
   }
 
-  showUsernameExistsMessage(): boolean{
-    return this.usernameExists;
+  showRequiredField(field: string): boolean{
+    return this.form.controls[field].touched && !this.form.controls[field].value;
+  }
+
+  showUsernameExistsMessage(){
+    this.usernameExists = true;
+    setTimeout(() => {
+      this.usernameExists = false;
+    }, 3000);
   }
 
 
