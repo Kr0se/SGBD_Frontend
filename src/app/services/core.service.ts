@@ -5,12 +5,14 @@ import { catchError, retry } from 'rxjs/operators';
 import { UserAuth } from 'src/app/model/userAuth';
 import { User } from '../model/user';
 import { Folder } from '../model/folder';
+import { FileDB } from '../model/file';
 
 @Injectable()
 export class CoreService {
   
   private getUserUrl: string = "http://localhost:8080/users/getUserByUsername?username=";
   private addFolderUrl: string = "http://localhost:8080/users";
+  private addFileUrl: string = "http://localhost:8080/fitxers";
 
   constructor(private http: HttpClient) { }
 
@@ -61,5 +63,30 @@ export class CoreService {
           return of();
       }))
   }
+
+  uploadFile(formData: FormData, username: string): Observable<User> {
+    return this.http.post<User>(this.addFileUrl.concat("/" + username + "/upload"), formData)
+    .pipe(
+      catchError((error: any, caught: Observable<any>): Observable<any> => {
+        console.error('There was an error!', error);
+
+        // after handling error, return a new observable 
+        // that doesn't emit any values and completes
+        return of();
+    }))    
+  }
+
+  getFile(id: string): Observable<FileDB> {    
+    return this.http.get<FileDB>(this.addFileUrl.concat("/get/" + id))
+    .pipe(
+      catchError((error: any, caught: Observable<any>): Observable<any> => {
+        console.error('There was an error!', error);
+
+        // after handling error, return a new observable 
+        // that doesn't emit any values and completes
+        return of();
+    }))    
+  }
+
 
 }

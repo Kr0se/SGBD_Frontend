@@ -1,12 +1,15 @@
 import { LocationStrategy } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { FileUploadService } from 'src/app/services/file-upload.service';
+import { FileDB } from '../model/file';
 import { Folder } from '../model/folder';
-import { Carpeta, User } from '../model/user';
+import { Carpeta, Fitxer, User } from '../model/user';
 import { UserAuth } from '../model/userAuth';
 import { CoreService } from '../services/core.service';
+
   
 @Component({
     selector: 'app-file-upload',
@@ -17,7 +20,6 @@ export class FileUploadComponent implements OnInit {
   
     // Variable to store shortLink from api response
     shortLink: string = "";
-    loading: boolean = false; // Flag variable
     file: File | any = null; // Variable to store file
 
     private userAuth: UserAuth = {
@@ -35,7 +37,7 @@ export class FileUploadComponent implements OnInit {
         mainCarpeta: {
             nom: '',
             subCarpetes: [],
-            videos: [],
+            files: [],
         }
     };
     
@@ -43,10 +45,12 @@ export class FileUploadComponent implements OnInit {
     currentPath!: string; // main es l'inicial
     currentFolderName!: string;
     currentSubFolders!: Carpeta[];
+    currentFiles!: Fitxer[];
 
     currentPathStack: string[] = [];
     currentFolderNameStack: string[] = [];
     currentSubFoldersStack: Carpeta[][] = [];
+    currentFilesStack: Fitxer[][] = [];
 
     //CreateFolder
     displayStylePopupCreateFolder = "none";
@@ -59,7 +63,7 @@ export class FileUploadComponent implements OnInit {
     folderDeleteRename: Carpeta = {
         nom: '',
         subCarpetes: [],
-        videos: []
+        files: []
     };
 
     //RenameFolder
@@ -74,7 +78,7 @@ export class FileUploadComponent implements OnInit {
         private fileUploadService: FileUploadService,
         private router: Router,
         private coreService: CoreService,
-        private location: LocationStrategy
+        private location: LocationStrategy,
     ) {
         this.userAuth.username = JSON.parse(sessionStorage.getItem("username")!);
         this.userAuth.password = JSON.parse(sessionStorage.getItem("password")!);
@@ -85,12 +89,13 @@ export class FileUploadComponent implements OnInit {
         this.coreService.getUser(this.userAuth.username!).subscribe((res: User) => {
             //console.log(res);
             this.user = res;
-            console.log(this.user);
+            console.log(this.user);            
 
             //Genero els path
             this.currentPath = "main";
             this.currentFolderName = "main";
             this.currentSubFolders = this.user.mainCarpeta.subCarpetes;
+            this.currentFiles = this.user.mainCarpeta.files;
         })
 
         history.pushState(null, "", window.location.href);
@@ -102,10 +107,12 @@ export class FileUploadComponent implements OnInit {
                 this.currentPath = this.currentPathStack[this.currentPathStack.length-1];
                 this.currentFolderName = this.currentFolderNameStack[this.currentFolderNameStack.length-1];
                 this.currentSubFolders = this.currentSubFoldersStack[this.currentSubFoldersStack.length-1];
+                this.currentFiles = this.currentFilesStack[this.currentFilesStack.length-1];
 
                 this.currentPathStack.pop();
                 this.currentFolderNameStack.pop();
                 this.currentSubFoldersStack.pop();
+                this.currentFilesStack.pop();
             }
         });
     }
@@ -116,20 +123,16 @@ export class FileUploadComponent implements OnInit {
     }
   
     // OnClick of button Upload
-    onUpload() {
-        this.loading = !this.loading;
+    uploadFile() {
         console.log(this.file);
-        this.fileUploadService.upload(this.file).subscribe(
-            (event: any) => {
-                if (typeof (event) === 'object') {
-  
-                    // Short link via api response
-                    this.shortLink = event.link;
-  
-                    this.loading = false; // Flag variable 
-                }
-            }
-        );
+        const formData = new FormData(); 
+        formData.append("file", this.file);
+        formData.append("path", this.currentPath);
+
+        this.coreService.uploadFile(formData, this.user.username).subscribe((res: User) => {
+            this.user = res;
+            this.updateCurrentSubfoldersAndFiles();
+        });
     }
 
     showCurrentPath(): string {
@@ -139,16 +142,6 @@ export class FileUploadComponent implements OnInit {
 
     goToPage(pageName: string){
         this.router.navigateByUrl(pageName);
-    }
-
-    createFolder(){
-        console.log('create folder');
-
-    }
-
-    uploadFile(){
-        console.log('upload file');
-
     }
 
     logOut(){
@@ -179,12 +172,12 @@ export class FileUploadComponent implements OnInit {
         this.coreService.addFolder(this.user.username, folder).subscribe((res: User) => {
             console.log(res);
             this.user = res;
-            this.updateCurrentSubfolders();
+            this.updateCurrentSubfoldersAndFiles();
         });
         this.formCreateFolder.reset();
     }
 
-    private updateCurrentSubfolders(){
+    private updateCurrentSubfoldersAndFiles(){
         let parts = this.currentPath.split("/").splice(1, this.currentPath.split("/").length); //trec la main
         let actual: Carpeta = this.user.mainCarpeta;
         let resSubFolders: Carpeta[] = this.user.mainCarpeta.subCarpetes;
@@ -197,11 +190,12 @@ export class FileUploadComponent implements OnInit {
             }
         }
         this.currentSubFolders = resSubFolders;
+        this.currentFiles = actual.files;
         //console.log(this.subFolders);
     }
 
 
-    rigthClickCard($event: MouseEvent, folder: Carpeta) {       
+    rigthClickCardFolder($event: MouseEvent, folder: Carpeta) {       
         /* Use the following properties to differentiate between left and right click respectively.
         * $event.type will be "click" or "contextmenu"
         * $event.which will be "1" or "3"
@@ -217,6 +211,10 @@ export class FileUploadComponent implements OnInit {
         // To show your modal or popover or any page
         this.folderDeleteRename = folder;
         this.openPopupDeleteFolder();
+    }
+
+    rigthClickCardFile($event: MouseEvent, file: Fitxer) {
+
     }
 
     openPopupDeleteFolder() {
@@ -239,7 +237,7 @@ export class FileUploadComponent implements OnInit {
         this.coreService.removeFolder(this.user.username, folder).subscribe((res: User) => {
             console.log(res);
             this.user = res;
-            this.updateCurrentSubfolders();
+            this.updateCurrentSubfoldersAndFiles();
         });
     }
 
@@ -262,24 +260,51 @@ export class FileUploadComponent implements OnInit {
         this.coreService.renameFolder(this.user.username, folder).subscribe((res: User) => {
             console.log(res);
             this.user = res;
-            this.updateCurrentSubfolders();
+            this.updateCurrentSubfoldersAndFiles();
         });
 
         this.formRenameFolder.reset();
     }
 
-    doubleClick(folder: Carpeta){
+    doubleClickFolder(folder: Carpeta){
         this.currentPathStack.push(this.currentPath.toString());
         this.currentFolderNameStack.push(this.currentFolderName);
         this.currentSubFoldersStack.push(this.currentSubFolders);
+        this.currentFilesStack.push(this.currentFiles);        
 
         this.currentPath = this.currentPath.concat("/").concat(folder.nom);
         this.currentFolderName = folder.nom;
-        this.currentSubFolders = folder.subCarpetes;
 
         this.coreService.getUser(this.user.username).subscribe((res: User) => {
             this.user = res;
-            this.updateCurrentSubfolders();
+            this.updateCurrentSubfoldersAndFiles();
+        });
+    }
+
+    doubleClickFile(file: Fitxer){
+        this.coreService.getFile(file.id).subscribe((res: FileDB) => {
+            console.log(res);
+
+            /*const data = res;
+            const blob = new Blob([data], { type: 'application/octet-stream' });
+            const url= window.URL.createObjectURL(blob);
+            window.open(url);*/
+
+            /*const data = 'some text';
+            const blob = new Blob([data], { type: 'application/octet-stream' });
+            const url= window.URL.createObjectURL(blob);
+            window.open(url);*/
+
+            /*const link = document.createElement('a');
+            link.setAttribute('target', '_blank');
+            link.setAttribute('href', 'assets/images/fitxer.png');
+            link.setAttribute('download', "logo.png");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();*/
+
+
+            
         });
     }
 
