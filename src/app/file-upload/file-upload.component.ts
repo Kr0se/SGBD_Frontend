@@ -1,10 +1,10 @@
 import { LocationStrategy } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { FileUploadService } from 'src/app/services/file-upload.service';
-import { FileDB } from '../model/file';
+import { FileDTO } from '../model/file';
 import { Folder } from '../model/folder';
 import { Carpeta, Fitxer, User } from '../model/user';
 import { UserAuth } from '../model/userAuth';
@@ -22,6 +22,9 @@ export class FileUploadComponent implements OnInit {
     shortLink: string = "";
     file: File | any = null; // Variable to store file
 
+    @ViewChild('myInput')
+    inputChooseFile!: ElementRef;
+
     private userAuth: UserAuth = {
         name: '',
         surname: '',
@@ -29,7 +32,7 @@ export class FileUploadComponent implements OnInit {
         password: ''
     };
 
-    private user : User = {
+    user : User = {
         name: '',
         surname: '',
         username: '',
@@ -70,7 +73,22 @@ export class FileUploadComponent implements OnInit {
     formRenameFolder = new FormGroup({
         folderName: new FormControl('', [Validators.required]),
         newFolderName: new FormControl('', [Validators.required]),
-    });  
+    });
+
+    //DeleteFile
+    displayStylePopupDeleteFile = "none";
+    fileDeleteRename: Fitxer = {
+        nom: '',
+        dataPujada: 0,
+        id: '',
+        fitxerDBId: ''
+    };
+
+    //RenameFile
+    formRenameFile = new FormGroup({
+        fileName: new FormControl('', [Validators.required]),
+        newFileName: new FormControl('', [Validators.required]),
+    });
 
   
     // Inject service 
@@ -119,7 +137,7 @@ export class FileUploadComponent implements OnInit {
   
     // On file Select
     onChange(event: any) {
-        this.file = event.target.files[0];
+        this.file = event.target.files[0];       
     }
   
     // OnClick of button Upload
@@ -132,6 +150,7 @@ export class FileUploadComponent implements OnInit {
         this.coreService.uploadFile(formData, this.user.username).subscribe((res: User) => {
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
+            this.inputChooseFile.nativeElement.value = "";
         });
     }
 
@@ -195,12 +214,7 @@ export class FileUploadComponent implements OnInit {
     }
 
 
-    rigthClickCardFolder($event: MouseEvent, folder: Carpeta) {       
-        /* Use the following properties to differentiate between left and right click respectively.
-        * $event.type will be "click" or "contextmenu"
-        * $event.which will be "1" or "3"
-        */
-      
+    rigthClickCardFolder($event: MouseEvent, folder: Carpeta) {            
         // To prevent browser's default contextmenu
         $event.preventDefault();
         $event.stopPropagation();
@@ -214,16 +228,34 @@ export class FileUploadComponent implements OnInit {
     }
 
     rigthClickCardFile($event: MouseEvent, file: Fitxer) {
-
+        // To prevent browser's default contextmenu
+        $event.preventDefault();
+        $event.stopPropagation();
+        
+        this.formRenameFile.controls['fileName'].setValue(file.nom);
+        this.formRenameFile.controls['fileName'].disable();
+        
+        // To show your modal or popover or any page
+        this.fileDeleteRename = file;
+        this.openPopupDeleteFile();
     }
 
     openPopupDeleteFolder() {
         this.displayStylePopupDeleteFolder = "block";
     }
 
-    closePopupDeleteFolder() {
+    openPopupDeleteFile() {
+        this.displayStylePopupDeleteFile = "block";
+    }
+
+    closePopupDeleteRenameFolder() {
         this.displayStylePopupDeleteFolder = "none";
         this.formRenameFolder.reset();
+    }
+
+    closePopupDeleteRenameFile() {
+        this.displayStylePopupDeleteFile = "none";
+        this.formRenameFile.reset();
     }
 
     closePopupDeleteFolderSubmit() {
@@ -241,9 +273,19 @@ export class FileUploadComponent implements OnInit {
         });
     }
 
-    closePopupRenameFolder() {
-        this.displayStylePopupDeleteFolder = "none";
-        this.formRenameFolder.reset();
+    closePopupDeleteFileSubmit() {
+        this.displayStylePopupDeleteFile = "none";
+        let file: FileDTO = {
+            path: this.currentPath,
+            nom: this.fileDeleteRename.nom,
+            nouNom: ''
+        }        
+    
+        this.coreService.removeFile(this.fileDeleteRename.id, file).subscribe((res: User) => {
+            console.log(res);
+            this.user = res;
+            this.updateCurrentSubfoldersAndFiles();
+        });
     }
 
     closePopupRenameFolderSubmit() {
@@ -252,10 +294,7 @@ export class FileUploadComponent implements OnInit {
             path: this.currentPath,
             folderName: this.folderDeleteRename.nom,
             newFolderName: this.formRenameFolder.controls['newFolderName'].value
-        }
-
-        console.log(folder);
-        
+        }        
 
         this.coreService.renameFolder(this.user.username, folder).subscribe((res: User) => {
             console.log(res);
@@ -264,6 +303,26 @@ export class FileUploadComponent implements OnInit {
         });
 
         this.formRenameFolder.reset();
+    }
+
+    closePopupRenameFileSubmit() {
+        this.displayStylePopupDeleteFile = "none";
+        let file: FileDTO = {
+            path: this.currentPath,
+            nom: this.fileDeleteRename.nom,
+            nouNom: this.formRenameFile.controls['newFileName'].value
+        } 
+
+        console.log(file);
+        
+
+        this.coreService.renameFile(this.fileDeleteRename.id, file).subscribe((res: User) => {
+            console.log(res);
+            this.user = res;
+            this.updateCurrentSubfoldersAndFiles();
+        });
+
+        this.formRenameFile.reset();
     }
 
     doubleClickFolder(folder: Carpeta){
@@ -282,29 +341,17 @@ export class FileUploadComponent implements OnInit {
     }
 
     doubleClickFile(file: Fitxer){
-        this.coreService.getFile(file.id).subscribe((res: FileDB) => {
-            console.log(res);
-
-            /*const data = res;
-            const blob = new Blob([data], { type: 'application/octet-stream' });
-            const url= window.URL.createObjectURL(blob);
-            window.open(url);*/
-
-            /*const data = 'some text';
-            const blob = new Blob([data], { type: 'application/octet-stream' });
-            const url= window.URL.createObjectURL(blob);
-            window.open(url);*/
-
-            /*const link = document.createElement('a');
-            link.setAttribute('target', '_blank');
-            link.setAttribute('href', 'assets/images/fitxer.png');
-            link.setAttribute('download', "logo.png");
-            document.body.appendChild(link);
-            link.click();
-            link.remove();*/
-
-
-            
+        this.coreService.getFile(file.id).subscribe((res: any) => {
+            //console.log(res);
+            let dataType = res.type;
+            let binaryData = [];
+            binaryData.push(res);
+            let downloadLink = document.createElement('a');
+            downloadLink.href = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
+            if (file.nom)
+                downloadLink.setAttribute('download', file.nom);
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
         });
     }
 

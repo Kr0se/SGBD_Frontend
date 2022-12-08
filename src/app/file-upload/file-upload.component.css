@@ -24,3 +24,8 @@
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
 }
+
+.welcome{
+    font-size: large;
+    font-weight: 400;
+}
