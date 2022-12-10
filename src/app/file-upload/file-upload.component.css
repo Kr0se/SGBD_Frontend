@@ -29,3 +29,12 @@
     font-size: large;
     font-weight: 400;
 }
+
+li{
+    cursor: pointer;
+}
+
+.list-group-item:hover {
+    background-color: #0C6EFD;
+    color: white;
+}

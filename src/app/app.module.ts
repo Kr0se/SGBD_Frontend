@@ -11,6 +11,7 @@ import { RegisterComponent } from './register/register.component';
 import { AuthService } from './services/auth.service';
 import { CoreService } from './services/core.service';
 import { AuthGuard } from './guard/auth-guard.guard';
+import { SearchService } from './services/search.service';
 
 const routes: Routes = [
   {path: "login", component: LoginComponent},
@@ -32,7 +33,7 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     ReactiveFormsModule
   ],
-  providers: [AuthService, CoreService],
+  providers: [AuthService, CoreService, SearchService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

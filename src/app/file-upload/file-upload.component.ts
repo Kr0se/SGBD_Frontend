@@ -3,12 +3,14 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import { FileUploadService } from 'src/app/services/file-upload.service';
-import { FileDTO } from '../model/file';
+import { FileDTO, ShareFileDTO } from '../model/file';
 import { Folder } from '../model/folder';
 import { Carpeta, Fitxer, User } from '../model/user';
 import { UserAuth } from '../model/userAuth';
 import { CoreService } from '../services/core.service';
+import { SearchService } from '../services/search.service';
 
   
 @Component({
@@ -24,6 +26,9 @@ export class FileUploadComponent implements OnInit {
 
     @ViewChild('myInput')
     inputChooseFile!: ElementRef;
+
+    @ViewChild('inputSearchUser')
+    inputSearchUser!: ElementRef;
 
     private userAuth: UserAuth = {
         name: '',
@@ -43,6 +48,15 @@ export class FileUploadComponent implements OnInit {
             files: [],
         }
     };
+
+    //Search Bar
+    private readonly searchSubject = new Subject<string | undefined>();
+    private searchSubscription?: Subscription;
+
+    //Search User
+    private readonly searchUserSubject = new Subject<string | undefined>();
+    private searchUserSubscription?: Subscription;
+    usersSearchBar: User[] = [];
     
     //Application Paths
     currentPath!: string; // main es l'inicial
@@ -81,7 +95,8 @@ export class FileUploadComponent implements OnInit {
         nom: '',
         dataPujada: 0,
         id: '',
-        fitxerDBId: ''
+        fitxerDBId: '',
+        tipus: ''
     };
 
     //RenameFile
@@ -90,6 +105,12 @@ export class FileUploadComponent implements OnInit {
         newFileName: new FormControl('', [Validators.required]),
     });
 
+    //ShareFile
+    formShareFile = new FormGroup({
+        usernameToShare: new FormControl('', [Validators.required]),
+    });
+    filesSharedByOtherUsers: Fitxer[] = [];
+
   
     // Inject service 
     constructor(
@@ -97,6 +118,7 @@ export class FileUploadComponent implements OnInit {
         private router: Router,
         private coreService: CoreService,
         private location: LocationStrategy,
+        private searchService: SearchService
     ) {
         this.userAuth.username = JSON.parse(sessionStorage.getItem("username")!);
         this.userAuth.password = JSON.parse(sessionStorage.getItem("password")!);
@@ -104,24 +126,23 @@ export class FileUploadComponent implements OnInit {
     }
   
     ngOnInit(): void {
-        this.coreService.getUser(this.userAuth.username!).subscribe((res: User) => {
-            //console.log(res);
-            this.user = res;
-            console.log(this.user);            
+        //Obtenim l'usuari
+        this.getUser();
 
-            //Genero els path
-            this.currentPath = "main";
-            this.currentFolderName = "main";
-            this.currentSubFolders = this.user.mainCarpeta.subCarpetes;
-            this.currentFiles = this.user.mainCarpeta.files;
-        })
+        //Obtenim els fitxers compartits
+        this.getSharedFiles();
 
+        //Modifiquem el boto de tirar enrere
         history.pushState(null, "", window.location.href);
         // check if back or forward button is pressed.
         this.location.onPopState(() => {
             history.pushState(null, "", window.location.href);
 
             if(this.currentPathStack.length > 0){
+                if(this.currentPathStack.length === 1){ //abans d'anar a la main, actualitzem els fitxers compartits
+                    this.getSharedFiles();                    
+                }
+
                 this.currentPath = this.currentPathStack[this.currentPathStack.length-1];
                 this.currentFolderName = this.currentFolderNameStack[this.currentFolderNameStack.length-1];
                 this.currentSubFolders = this.currentSubFoldersStack[this.currentSubFoldersStack.length-1];
@@ -133,6 +154,68 @@ export class FileUploadComponent implements OnInit {
                 this.currentFilesStack.pop();
             }
         });
+
+        //Definim el debounceTime de la cerca de fitxers
+        /*this.searchSubscription = this.searchSubject
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          switchMap((searchQuery) => this.searchService.search(searchQuery))
+        )
+        .subscribe((results) => (this.searchResults = results));*/
+
+        this.defineDebounceTimeGetAllUsersByUsername();
+
+        //Always disabled
+        this.formShareFile.controls['usernameToShare'].disable();
+    }
+
+    private getUser(){
+        this.coreService.getUser(this.userAuth.username!).subscribe((res: User) => {
+            //console.log(res);
+            this.user = res;
+            console.log(this.user);            
+
+            //Genero els path
+            this.currentPath = "main";
+            this.currentFolderName = "main";
+            this.currentSubFolders = this.user.mainCarpeta.subCarpetes;
+            this.currentFiles = this.user.mainCarpeta.files;
+        })
+    }
+
+    private getSharedFiles(){
+        this.coreService.getSharedFiles(this.userAuth.username!).subscribe((res: Fitxer[]) => {
+            this.filesSharedByOtherUsers = res;
+        })
+    }
+
+    private defineDebounceTimeGetAllUsersByUsername(){
+        //Definim el debounceTime de la cerca d'usuaris per Username
+        this.searchUserSubscription = this.searchUserSubject
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          switchMap((query) => this.searchService.getAllUsersByUsername(this.user.username, query))
+        )
+        .subscribe((results: User[]) => (
+            this.usersSearchBar = results
+        ));
+    }
+
+    public onSearchQueryInput(event: Event): void {
+        const searchQuery = (event.target as HTMLInputElement).value;
+        this.searchSubject.next(searchQuery?.trim());
+    }
+
+    public onSearchUserQueryInput(event: Event): void {
+        const searchQuery = (event.target as HTMLInputElement).value;
+        this.searchUserSubject.next(searchQuery?.trim());
+    }
+
+    public ngOnDestroy(): void {
+        this.searchSubscription?.unsubscribe();
+        this.searchUserSubscription?.unsubscribe();
     }
   
     // On file Select
@@ -142,7 +225,6 @@ export class FileUploadComponent implements OnInit {
   
     // OnClick of button Upload
     uploadFile() {
-        console.log(this.file);
         const formData = new FormData(); 
         formData.append("file", this.file);
         formData.append("path", this.currentPath);
@@ -311,10 +393,7 @@ export class FileUploadComponent implements OnInit {
             path: this.currentPath,
             nom: this.fileDeleteRename.nom,
             nouNom: this.formRenameFile.controls['newFileName'].value
-        } 
-
-        console.log(file);
-        
+        }         
 
         this.coreService.renameFile(this.fileDeleteRename.id, file).subscribe((res: User) => {
             console.log(res);
@@ -323,6 +402,32 @@ export class FileUploadComponent implements OnInit {
         });
 
         this.formRenameFile.reset();
+    }
+
+    closePopupShareFileSubmit() {
+        this.displayStylePopupDeleteFile = "none";
+
+        let file: ShareFileDTO = {
+            fitxerId: this.fileDeleteRename.id,
+            username: this.formShareFile.controls['usernameToShare'].value
+        }
+
+        console.log(file);
+        
+        this.coreService.shareFile(this.user.username, file).subscribe((res: User) => {
+            console.log(res);
+            this.user = res;
+            this.updateCurrentSubfoldersAndFiles();
+        });
+
+        this.formShareFile.reset();
+    }
+
+    usernameClicked(event: any) {
+        let username: string = event.target.innerHTML;
+        this.formShareFile.controls['usernameToShare'].setValue(username);        
+        this.usersSearchBar = [];
+        this.inputSearchUser.nativeElement.value = "";
     }
 
     doubleClickFolder(folder: Carpeta){
@@ -353,6 +458,10 @@ export class FileUploadComponent implements OnInit {
             document.body.appendChild(downloadLink);
             downloadLink.click();
         });
+    }
+
+    mainPage(): boolean{
+        return this.currentPathStack.length === 0;
     }
 
 

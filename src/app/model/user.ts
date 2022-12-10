@@ -3,6 +3,7 @@ export interface Fitxer {
     dataPujada: number;
     id: string;
     fitxerDBId: string;
+    tipus: string
 }
 
 export interface Carpeta {

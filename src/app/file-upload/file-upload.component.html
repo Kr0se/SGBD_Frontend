@@ -101,6 +101,32 @@
     </form>
     </div>
 
+    <div class="modal-content mt-2">
+      <div class="modal-header">
+        <h4 class="modal-title">Share file</h4>
+      </div>
+      <form [formGroup]="formShareFile" (ngSubmit)="closePopupShareFileSubmit()">
+        <div class="modal-body">
+          <div>
+            <p class="ms-1">Search user by username:</p>
+            <div class="form-group">
+              <input #inputSearchUser class="form-control" type="text" placeholder="Search User" id="searchUserQuery" (input)="onSearchUserQueryInput($event)">
+            </div>
+            <ul class="list-group" (click)="usernameClicked($event)">
+              <li class="list-group-item" *ngFor="let item of usersSearchBar | slice:0:5; let i=index">{{item.username}}</li>
+            </ul>
+          </div>
+          <div class="form-group mt-2">
+            <input formControlName="usernameToShare" class="form-control" type="text" placeholder="">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!formShareFile.controls['usernameToShare'].value">Share</button>
+          <button type="button" class="btn btn-danger" (click)="closePopupDeleteRenameFile()"> Close </button>
+        </div>
+    </form>
+    </div>
+
   </div>
 </div>
 
@@ -117,7 +143,7 @@
       <div class="col-4 ">
         <nav class="navbar justify-content-center">
           <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search File" aria-label="Search">
+            <input class="form-control me-2" type="text" placeholder="Search File" id="searchQuery" (input)="onSearchQueryInput($event)">
           </form>
         </nav>
       </div>
@@ -194,11 +220,28 @@
           </div>
         </div>
       </div>
-      <div class="mt-3">
+      <div class="mt-3" *ngIf="mainPage()">
         <h3>Files shared by other users:</h3>
+        <div class="row">
+          <div class="col-3" *ngFor="let file of filesSharedByOtherUsers" (dblclick)="doubleClickFile(file)">
+            <div id="card" class="card mt-3">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-3">
+                    <img class="center" src="/assets/images/fitxer.png" alt="fitxer" height="45px" width="50px">
+                  </div>
+                  <div class="col-9 mt-2">
+                    <h5 class="card-title text-center">{{file.nom}}</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
 </div>
+
 

@@ -3,9 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { UserAuth } from 'src/app/model/userAuth';
-import { User } from '../model/user';
+import { Fitxer, User } from '../model/user';
 import { Folder } from '../model/folder';
-import { FileDTO } from '../model/file';
+import { FileDTO, ShareFileDTO } from '../model/file';
 
 @Injectable()
 export class CoreService {
@@ -13,6 +13,7 @@ export class CoreService {
   private getUserUrl: string = "http://localhost:8080/users/getUserByUsername?username=";
   private addFolderUrl: string = "http://localhost:8080/users";
   private addFileUrl: string = "http://localhost:8080/fitxers";
+  private shareUrl: string = "http://localhost:8080/fitxersUsuaris";
 
   constructor(private http: HttpClient) { }
 
@@ -106,6 +107,30 @@ export class CoreService {
 
   renameFile(id: string, file: FileDTO): Observable<User> {
     return this.http.post<User>(this.addFileUrl.concat("/rename/" + id), file)
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  shareFile(username: string, file: ShareFileDTO): Observable<User> {
+    return this.http.post<User>(this.shareUrl.concat("/add/" + username), file)
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  getSharedFiles(username: string): Observable<Fitxer[]> {
+    return this.http.get<Fitxer[]>(this.shareUrl.concat("/" + username + "/compartits"))
       .pipe(
         catchError((error: any, caught: Observable<any>): Observable<any> => {
           console.error('There was an error!', error);
