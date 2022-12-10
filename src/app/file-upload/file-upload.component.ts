@@ -69,6 +69,9 @@ export class FileUploadComponent implements OnInit {
     currentSubFoldersStack: Carpeta[][] = [];
     currentFilesStack: Fitxer[][] = [];
 
+    //Extra core elements
+    fileToUpdate!: Fitxer;
+
     //CreateFolder
     displayStylePopupCreateFolder = "none";
     formCreateFolder = new FormGroup({
@@ -229,11 +232,31 @@ export class FileUploadComponent implements OnInit {
         formData.append("file", this.file);
         formData.append("path", this.currentPath);
 
-        this.coreService.uploadFile(formData, this.user.username).subscribe((res: User) => {
-            this.user = res;
-            this.updateCurrentSubfoldersAndFiles();
-            this.inputChooseFile.nativeElement.value = "";
-        });
+        if(this.existsFileInCurrentDirectory(this.file.name)){ //Fem update del fitxer
+            this.coreService.updateFile(formData, this.fileToUpdate.id).subscribe((res: User) => {
+                this.user = res;
+                this.updateCurrentSubfoldersAndFiles();
+                this.inputChooseFile.nativeElement.value = "";
+            });
+            
+        }
+        else{ //L'afegim normal
+            this.coreService.uploadFile(formData, this.user.username).subscribe((res: User) => {
+                this.user = res;
+                this.updateCurrentSubfoldersAndFiles();
+                this.inputChooseFile.nativeElement.value = "";
+            });
+        }
+    }
+
+    private existsFileInCurrentDirectory(name: string){
+        for(let i = 0; i<this.currentFiles.length; i++){            
+            if (this.currentFiles[i].nom === name){
+                this.fileToUpdate = this.currentFiles[i];
+                return true;
+            }
+        }
+        return false;
     }
 
     showCurrentPath(): string {

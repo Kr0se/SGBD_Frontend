@@ -77,6 +77,19 @@ export class CoreService {
     }))    
   }
 
+  updateFile(formData: FormData, idFitxer: string): Observable<User> {
+
+    return this.http.post<User>(this.addFileUrl.concat("/update/" + idFitxer), formData)
+    .pipe(
+      catchError((error: any, caught: Observable<any>): Observable<any> => {
+        console.error('There was an error!', error);
+
+        // after handling error, return a new observable 
+        // that doesn't emit any values and completes
+        return of();
+    }))    
+  }
+
   getFile(id: string): Observable<any> {    
     var HTTPOptions = {
       'responseType': 'blob' as 'json'
