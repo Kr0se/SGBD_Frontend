@@ -361,6 +361,8 @@ export class FileUploadComponent implements OnInit {
     closePopupDeleteRenameFile() {
         this.displayStylePopupDeleteFile = "none";
         this.formRenameFile.reset();
+        this.formShareFile.reset();
+        this.inputSearchUser.nativeElement.value = "";
     }
 
     closePopupDeleteFolderSubmit() {
