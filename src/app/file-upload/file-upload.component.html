@@ -110,7 +110,7 @@
           <div>
             <p class="ms-1">Search user by username:</p>
             <div class="form-group">
-              <input #inputSearchUser class="form-control" type="text" placeholder="Search User" id="searchUserQuery" (input)="onSearchUserQueryInput($event)">
+              <input #inputSearchUser class="form-control" type="text" placeholder="Search User" id="searchUserQuery" (input)="onSearchUserQueryInput($event)" autocomplete="off">
             </div>
             <ul class="list-group" (click)="usernameClicked($event)">
               <li class="list-group-item" *ngFor="let item of usersSearchBar | slice:0:5; let i=index">{{item.username}}</li>
