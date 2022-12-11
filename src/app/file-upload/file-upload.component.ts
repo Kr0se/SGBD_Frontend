@@ -117,6 +117,7 @@ export class FileUploadComponent implements OnInit {
         usernameToShare: new FormControl('', [Validators.required]),
     });
     filesSharedByOtherUsers: Fitxer[] = [];
+    filesSharedToOtherUsers: Fitxer[] = [];
 
   
     // Inject service 
