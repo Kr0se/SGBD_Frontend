@@ -1,0 +1,58 @@
+<!-- POP UP CREATE FOLDER -->
+<div class="modal modal-backdrop" tabindex="-1" role="dialog" [ngStyle]="{'display':displayStylePopupDelete}">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Delete Account</h4>
+        </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this account? All your files will be lost.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" (click)="deleteAccountSubmit()">Delete</button>
+            <button type="button" class="btn btn-danger" (click)="closePopupDeleteAccount()"> Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div>
+          <img class="rounded mx-auto d-block" src="/assets/images/logo.png" alt="logo" width="250" height="65">
+        </div>
+        <div class="card">
+          <h2 class="card-title text-center">Delete Account</h2>
+            <div class="card-body py-md-4">
+              <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  
+                <div class="form-group">
+                  <label class="form-label ms-1">Username:</label>
+                  <span class="text-danger ms-2" *ngIf="showRequiredField('username')" >(Required field)</span>
+                  <input formControlName="username" type="text" class="form-control" id="username" placeholder="Username">
+                  <br>
+                </div>
+                                    
+                <div class="form-group">
+                  <label class="form-label ms-1">Password:</label>
+                  <span class="text-danger ms-2" *ngIf="showRequiredField('password')" >(Required field)</span>
+                  <input formControlName="password" type="password" class="form-control" id="password" placeholder="Password">
+                  <div *ngIf="invalidCredentials">
+                    <span class="text-danger ms-1">Invalid credentials</span>
+                  </div>
+                  <br>
+                </div>
+  
+                <div>
+                  <button class="btn btn-danger" type="submit" [disabled]="!form.valid">Delete</button>
+                </div>
+            </form>
+          </div>  
+          <div class="float-end">
+            <button class="btn btn-secondary float-end mb-3 me-3" (click)="goToPage('login')">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -13,6 +13,7 @@ export class LoginComponent implements OnInit {
 
   invalidCredentials = false;
   accountCreatedSuccessfully = false;
+  accountDeleted = false;
 
   private user: UserAuth = {
     name: '',
@@ -28,11 +29,15 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authServie: AuthService
+    private authService: AuthService
   ){    
     if(JSON.parse(sessionStorage.getItem("accountCreatedSuccessfully")!)){
       this.showAccountCreatedSuccessfullyMessage();
       sessionStorage.removeItem("accountCreatedSuccessfully");
+    }
+    else if(JSON.parse(sessionStorage.getItem("accountDeleted")!)){
+      this.showAccountDeletedMessage();
+      sessionStorage.removeItem("accountDeleted");
     }
   }
 
@@ -47,8 +52,7 @@ export class LoginComponent implements OnInit {
     this.user.username = this.form.controls['username'].value;
     this.user.password = this.form.controls['password'].value;
 
-    this.authServie.loginUser(this.user).subscribe((res: boolean) => {
-      console.log(res);
+    this.authService.loginUser(this.user).subscribe((res: boolean) => {
       if(res){
         this.invalidCredentials = false;
         sessionStorage.setItem("username", JSON.stringify(this.form.controls['username'].value));
@@ -72,6 +76,13 @@ export class LoginComponent implements OnInit {
     this.accountCreatedSuccessfully = true;
     setTimeout(() => {
       this.accountCreatedSuccessfully = false;
+    }, 4000);
+  }
+
+  showAccountDeletedMessage(){
+    this.accountDeleted = true;
+    setTimeout(() => {
+      this.accountDeleted = false;
     }, 4000);
   }
 

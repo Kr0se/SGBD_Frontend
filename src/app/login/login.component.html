@@ -22,6 +22,12 @@
           Account created successfully
         </div>
       </div>
+      <div class="alert alert-success d-flex align-items-center marginTop" role="alert" *ngIf="accountDeleted">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+          Account deleted successfully
+        </div>
+      </div>
       <div class="card">
         <h2 class="card-title text-center">Login</h2>
           <div class="card-body py-md-4">
@@ -50,7 +56,8 @@
           </form>
         </div>  
         <div class="float-end">
-          <button class="btn btn-secondary float-end m-3" (click)="goToPage('register')">Register</button>
+          <button class="btn btn-secondary float-end mb-3 me-3" (click)="goToPage('deleteAccount')">Delete</button>
+          <button class="btn btn-secondary float-end mb-3 me-3" (click)="goToPage('register')">Register</button>
         </div>
       </div>
     </div>
