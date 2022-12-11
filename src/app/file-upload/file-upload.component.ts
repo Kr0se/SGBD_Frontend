@@ -30,6 +30,9 @@ export class FileUploadComponent implements OnInit {
     @ViewChild('inputSearchUser')
     inputSearchUser!: ElementRef;
 
+    @ViewChild('inputSearchFile')
+    inputSearchFile!: ElementRef;
+
     private userAuth: UserAuth = {
         name: '',
         surname: '',
@@ -49,9 +52,10 @@ export class FileUploadComponent implements OnInit {
         }
     };
 
-    //Search Bar
+    //Search File Bar
     private readonly searchSubject = new Subject<string | undefined>();
     private searchSubscription?: Subscription;
+    filesSearchBar: Fitxer[] = [];
 
     //Search User
     private readonly searchUserSubject = new Subject<string | undefined>();
@@ -158,15 +162,8 @@ export class FileUploadComponent implements OnInit {
             }
         });
 
-        //Definim el debounceTime de la cerca de fitxers
-        /*this.searchSubscription = this.searchSubject
-        .pipe(
-          debounceTime(300),
-          distinctUntilChanged(),
-          switchMap((searchQuery) => this.searchService.search(searchQuery))
-        )
-        .subscribe((results) => (this.searchResults = results));*/
-
+        //Debounce time searches
+        this.defineDebounceSearchQueryFiles();
         this.defineDebounceTimeGetAllUsersByUsername();
 
         //Always disabled
@@ -203,6 +200,19 @@ export class FileUploadComponent implements OnInit {
         )
         .subscribe((results: User[]) => (
             this.usersSearchBar = results
+        ));
+    }
+
+    private defineDebounceSearchQueryFiles(){
+        //Definim el debounceTime de la cerca de fitxers
+        this.searchSubscription = this.searchSubject
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          switchMap((query) => this.searchService.getAllUserFiles(this.user.username, query))
+        )
+        .subscribe((results) => (            
+            this.filesSearchBar = results
         ));
     }
 
@@ -453,6 +463,12 @@ export class FileUploadComponent implements OnInit {
         this.formShareFile.controls['usernameToShare'].setValue(username);        
         this.usersSearchBar = [];
         this.inputSearchUser.nativeElement.value = "";
+    }
+
+    fileSearchClicked(file: Fitxer) {    
+        this.doubleClickFile(file);
+        this.filesSearchBar = [];
+        this.inputSearchFile.nativeElement.value = "";
     }
 
     doubleClickFolder(folder: Carpeta){
