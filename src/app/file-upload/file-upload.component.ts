@@ -120,6 +120,18 @@ export class FileUploadComponent implements OnInit {
     filesSharedToOtherUsers: Fitxer[] = [];
     displayStylePopupViewUsersWithWhomISharedTheFile = "none";
     usersWithWhomISharedTheFile: User[] = [];
+    displayStylePopupShowFileOwner = "none";
+    fileOwner : User = {
+        name: '',
+        surname: '',
+        username: '',
+        password: '',
+        mainCarpeta: {
+            nom: '',
+            subCarpetes: [],
+            files: [],
+        }
+    };
 
   
     // Inject service 
@@ -380,6 +392,16 @@ export class FileUploadComponent implements OnInit {
         this.openPopupViewUsersWithWhomISharedTheFile();
     }
 
+    rigthClickCardFileSharedBy($event: MouseEvent, file: Fitxer) {
+        // To prevent browser's default contextmenu
+        $event.preventDefault();
+        $event.stopPropagation();
+        
+        // To show your modal or popover or any page
+        this.fileSelected = file;
+        this.openPopupShowFileOwner();
+    }
+
     openPopupDeleteFolder() {
         this.displayStylePopupDeleteFolder = "block";
     }
@@ -395,9 +417,20 @@ export class FileUploadComponent implements OnInit {
         });
     }
 
+    openPopupShowFileOwner() {
+        this.displayStylePopupShowFileOwner = "block";
+        this.coreService.getUserPropietari(this.fileSelected.id).subscribe((res: User) => {
+            this.fileOwner = res;
+        });
+    }
+
     closePopupViewUsersWithWhomISharedTheFile() {
         this.displayStylePopupViewUsersWithWhomISharedTheFile = "none";
         this.formShareFile.reset();
+    }
+
+    closePopupShowFileOwner() {
+        this.displayStylePopupShowFileOwner = "none";
     }
 
     closePopupDeleteRenameFolder() {

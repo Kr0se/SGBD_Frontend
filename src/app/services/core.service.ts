@@ -190,5 +190,17 @@ export class CoreService {
       }))
   }
 
+  getUserPropietari(fitxerId: string): Observable<User> {
+    return this.http.get<User>(this.shareUrl.concat("/" + fitxerId + "/propietari"))
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
 
 }
