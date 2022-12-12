@@ -98,7 +98,7 @@ export class FileUploadComponent implements OnInit {
 
     //DeleteFile
     displayStylePopupDeleteFile = "none";
-    fileDeleteRename: Fitxer = {
+    fileSelected: Fitxer = {
         nom: '',
         dataPujada: 0,
         id: '',
@@ -118,6 +118,8 @@ export class FileUploadComponent implements OnInit {
     });
     filesSharedByOtherUsers: Fitxer[] = [];
     filesSharedToOtherUsers: Fitxer[] = [];
+    displayStylePopupViewUsersWithWhomISharedTheFile = "none";
+    usersWithWhomISharedTheFile: User[] = [];
 
   
     // Inject service 
@@ -138,7 +140,8 @@ export class FileUploadComponent implements OnInit {
         this.getUser();
 
         //Obtenim els fitxers compartits
-        this.getSharedFiles();
+        this.getSharedFilesByOthers();
+        this.getSharedFilesToOthers();
 
         //Modifiquem el boto de tirar enrere
         history.pushState(null, "", window.location.href);
@@ -148,7 +151,8 @@ export class FileUploadComponent implements OnInit {
 
             if(this.currentPathStack.length > 0){
                 if(this.currentPathStack.length === 1){ //abans d'anar a la main, actualitzem els fitxers compartits
-                    this.getSharedFiles();                    
+                    this.getSharedFilesByOthers();
+                    this.getSharedFilesToOthers();                
                 }
 
                 this.currentPath = this.currentPathStack[this.currentPathStack.length-1];
@@ -185,9 +189,15 @@ export class FileUploadComponent implements OnInit {
         })
     }
 
-    private getSharedFiles(){
-        this.coreService.getSharedFiles(this.userAuth.username!).subscribe((res: Fitxer[]) => {
+    private getSharedFilesByOthers(){
+        this.coreService.getSharedFilesByOthers(this.userAuth.username!).subscribe((res: Fitxer[]) => {
             this.filesSharedByOtherUsers = res;
+        })
+    }
+
+    private getSharedFilesToOthers(){
+        this.coreService.getFilesSharedToOthers(this.userAuth.username!).subscribe((res: Fitxer[]) => {
+            this.filesSharedToOtherUsers = res;
         })
     }
 
@@ -326,7 +336,11 @@ export class FileUploadComponent implements OnInit {
         }
         this.currentSubFolders = resSubFolders;
         this.currentFiles = actual.files;
-        //console.log(this.subFolders);
+
+        if(this.mainPage()){
+            this.getSharedFilesByOthers();
+            this.getSharedFilesToOthers();
+        }
     }
 
 
@@ -352,8 +366,18 @@ export class FileUploadComponent implements OnInit {
         this.formRenameFile.controls['fileName'].disable();
         
         // To show your modal or popover or any page
-        this.fileDeleteRename = file;
+        this.fileSelected = file;
         this.openPopupDeleteFile();
+    }
+
+    rigthClickCardFileSharedTo($event: MouseEvent, file: Fitxer) {
+        // To prevent browser's default contextmenu
+        $event.preventDefault();
+        $event.stopPropagation();
+        
+        // To show your modal or popover or any page
+        this.fileSelected = file;
+        this.openPopupViewUsersWithWhomISharedTheFile();
     }
 
     openPopupDeleteFolder() {
@@ -362,6 +386,18 @@ export class FileUploadComponent implements OnInit {
 
     openPopupDeleteFile() {
         this.displayStylePopupDeleteFile = "block";
+    }
+
+    openPopupViewUsersWithWhomISharedTheFile() {
+        this.displayStylePopupViewUsersWithWhomISharedTheFile = "block";
+        this.coreService.getUsersWithWhomISharedTheFile(this.fileSelected.id).subscribe((res: User[]) => {
+            this.usersWithWhomISharedTheFile = res;
+        });
+    }
+
+    closePopupViewUsersWithWhomISharedTheFile() {
+        this.displayStylePopupViewUsersWithWhomISharedTheFile = "none";
+        this.formShareFile.reset();
     }
 
     closePopupDeleteRenameFolder() {
@@ -395,12 +431,11 @@ export class FileUploadComponent implements OnInit {
         this.displayStylePopupDeleteFile = "none";
         let file: FileDTO = {
             path: this.currentPath,
-            nom: this.fileDeleteRename.nom,
+            nom: this.fileSelected.nom,
             nouNom: ''
         }        
     
-        this.coreService.removeFile(this.fileDeleteRename.id, file).subscribe((res: User) => {
-            console.log(res);
+        this.coreService.removeFile(this.fileSelected.id, file).subscribe((res: User) => {
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
@@ -427,12 +462,11 @@ export class FileUploadComponent implements OnInit {
         this.displayStylePopupDeleteFile = "none";
         let file: FileDTO = {
             path: this.currentPath,
-            nom: this.fileDeleteRename.nom,
+            nom: this.fileSelected.nom,
             nouNom: this.formRenameFile.controls['newFileName'].value
         }         
 
-        this.coreService.renameFile(this.fileDeleteRename.id, file).subscribe((res: User) => {
-            console.log(res);
+        this.coreService.renameFile(this.fileSelected.id, file).subscribe((res: User) => {
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
@@ -444,18 +478,31 @@ export class FileUploadComponent implements OnInit {
         this.displayStylePopupDeleteFile = "none";
 
         let file: ShareFileDTO = {
-            fitxerId: this.fileDeleteRename.id,
+            fitxerId: this.fileSelected.id,
             username: this.formShareFile.controls['usernameToShare'].value
         }
-
-        console.log(file);
         
         this.coreService.shareFile(this.user.username, file).subscribe((res: User) => {
-            console.log(res);
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
 
+        this.formShareFile.reset();
+    }
+
+    closePopupViewUsersWithWhomISharedTheFileSubmit() {
+        this.displayStylePopupViewUsersWithWhomISharedTheFile = "none";
+
+        let file: ShareFileDTO = {
+            fitxerId: this.fileSelected.id,
+            username: this.formShareFile.controls['usernameToShare'].value
+        }        
+        
+        this.coreService.stopShareFile(this.user.username, file).subscribe((res: User) => {
+            this.user = res;
+            this.updateCurrentSubfoldersAndFiles();
+        });
+        
         this.formShareFile.reset();
     }
 

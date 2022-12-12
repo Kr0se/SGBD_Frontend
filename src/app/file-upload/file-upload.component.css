@@ -47,3 +47,8 @@ li{
 .width{
     width: 200px;
 }
+
+.scroll-item{
+    max-height: 300px;
+    overflow:scroll;
+}

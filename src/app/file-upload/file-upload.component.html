@@ -67,7 +67,7 @@
         <h4 class="modal-title">Delete file</h4>
       </div>
       <div class="modal-body">
-        <p>Do yo really want to delete the file '{{fileDeleteRename.nom}}'?</p>
+        <p>Do yo really want to delete the file '{{fileSelected.nom}}'?</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="closePopupDeleteFileSubmit()"> Delete </button>
@@ -121,6 +121,33 @@
     </form>
     </div>
 
+  </div>
+</div>
+
+<!-- POP UP VIEW USERS WITH WHOM I SHARED THE FILE AND STOP SHARING-->
+<div class="modal modal-backdrop" tabindex="-1" role="dialog" [ngStyle]="{'display':displayStylePopupViewUsersWithWhomISharedTheFile}">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">'{{fileSelected.nom}}' is shared to:</h4>
+      </div>
+      <form [formGroup]="formShareFile" (ngSubmit)="closePopupViewUsersWithWhomISharedTheFileSubmit()">
+        <div class="modal-body">
+          <ul class="list-group scroll-item" (click)="usernameClicked($event)">
+            <li class="list-group-item" *ngFor="let user of usersWithWhomISharedTheFile">{{user.username}}</li>
+          </ul>
+          <hr>
+          <p class="ms-1">Do you want to stop sharing the file with this user?</p>
+          <div class="form-group mt-2">
+            <input formControlName="usernameToShare" class="form-control" type="text" placeholder="">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!formShareFile.controls['usernameToShare'].value">Stop Sharing</button>
+          <button type="button" class="btn btn-danger" (click)="closePopupViewUsersWithWhomISharedTheFile()"> Close </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -252,7 +279,7 @@
       <div class="mt-3" *ngIf="mainPage()">
         <h3>Files shared to other users:</h3>
         <div class="row">
-          <div class="col-3" *ngFor="let file of filesSharedToOtherUsers" (dblclick)="doubleClickFile(file)">
+          <div class="col-3" *ngFor="let file of filesSharedToOtherUsers" (contextmenu)="rigthClickCardFileSharedTo($event, file);" (dblclick)="doubleClickFile(file)">
             <div id="card" class="card mt-3">
               <div class="card-body">
                 <div class="row">

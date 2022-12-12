@@ -142,8 +142,44 @@ export class CoreService {
       }))
   }
 
-  getSharedFiles(username: string): Observable<Fitxer[]> {
+  stopShareFile(username: string, file: ShareFileDTO): Observable<User> {
+    return this.http.post<User>(this.shareUrl.concat("/delete/" + username), file)
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  getSharedFilesByOthers(username: string): Observable<Fitxer[]> {
     return this.http.get<Fitxer[]>(this.shareUrl.concat("/" + username + "/compartits"))
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  getFilesSharedToOthers(username: string): Observable<Fitxer[]> {
+    return this.http.get<Fitxer[]>(this.shareUrl.concat("/" + username + "/fitxersto"))
+      .pipe(
+        catchError((error: any, caught: Observable<any>): Observable<any> => {
+          console.error('There was an error!', error);
+
+          // after handling error, return a new observable 
+          // that doesn't emit any values and completes
+          return of();
+      }))
+  }
+
+  getUsersWithWhomISharedTheFile(fitxerId: string): Observable<User[]> {
+    return this.http.get<User[]>(this.shareUrl.concat("/" + fitxerId + "/users"))
       .pipe(
         catchError((error: any, caught: Observable<any>): Observable<any> => {
           console.error('There was an error!', error);
