@@ -65,8 +65,12 @@ export class RegisterComponent implements OnInit {
     return this.form.valid && this.form.controls['password'].value === this.form.controls['confirmPassword'].value;
   }
 
-  showError(){
+  showErrorPasswordsNotMatch(){
     return this.form.valid && this.form.controls['password'].value !== this.form.controls['confirmPassword'].value;
+  }
+
+  showErrorMinLengthRequired(){
+    return this.form.controls['password'].touched && this.form.controls['confirmPassword'].touched && (this.form.get('password')!.value?.length < 5 || this.form.get('confirmPassword')!.value?.length < 5);
   }
 
   showRequiredField(field: string): boolean{

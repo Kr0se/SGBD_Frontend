@@ -41,12 +41,14 @@
                 <label class="form-label ms-1">Confirm Password:</label>
                 <span class="text-danger ms-2" *ngIf="showRequiredField('confirmPassword')" >(Required field)</span>
                 <input formControlName="confirmPassword" type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password">
-                <div *ngIf="showError()">
+                <div *ngIf="showErrorPasswordsNotMatch()">
                   <span class="text-danger ms-1">Passwords do not match</span>
-                  <br><br>
                 </div>
                 <div *ngIf="usernameExists">
                   <span class="text-danger ms-1">Username already exists</span>
+                </div>
+                <div *ngIf="showErrorMinLengthRequired()">
+                  <span class="text-danger ms-1">Password must have at least 5 characters</span>
                 </div>
                 <br>
               </div>
