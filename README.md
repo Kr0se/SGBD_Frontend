@@ -1,6 +1,8 @@
 ## Comandes
 - Obrir aplicació: ng serve -o
 
-## Pages
+## Rutes
 - /login
-- /uploadfile
+- /register
+- /deleteAccount
+- /fileupload
