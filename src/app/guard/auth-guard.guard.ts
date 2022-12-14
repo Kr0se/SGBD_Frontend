@@ -15,7 +15,6 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
     if(sessionStorage.getItem("username") == null || sessionStorage.getItem("password") == null){
-      console.log("no tens acces");
       this.router.navigate(['login']);
       return false;
     }

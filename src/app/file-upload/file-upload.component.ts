@@ -142,7 +142,6 @@ export class FileUploadComponent implements OnInit {
     ) {
         this.userAuth.username = JSON.parse(sessionStorage.getItem("username")!);
         this.userAuth.password = JSON.parse(sessionStorage.getItem("password")!);
-        //console.log(this.userAuth);
     }
   
     ngOnInit(): void {
@@ -187,9 +186,7 @@ export class FileUploadComponent implements OnInit {
 
     private getUser(){
         this.coreService.getUser(this.userAuth.username!).subscribe((res: User) => {
-            //console.log(res);
             this.user = res;
-            console.log(this.user);            
 
             //Genero els path
             this.currentPath = "main";
@@ -316,7 +313,6 @@ export class FileUploadComponent implements OnInit {
 
     closePopupCreateFolderSubmit() {
         this.displayStylePopupCreateFolder = "none";
-        console.log(this.formCreateFolder.value);
 
         let folder: Folder = {
             path: this.currentPath,
@@ -325,7 +321,6 @@ export class FileUploadComponent implements OnInit {
         }
 
         this.coreService.addFolder(this.user.username, folder).subscribe((res: User) => {
-            console.log(res);
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
@@ -452,7 +447,6 @@ export class FileUploadComponent implements OnInit {
         }
 
         this.coreService.removeFolder(this.user.username, folder).subscribe((res: User) => {
-            console.log(res);
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
@@ -481,7 +475,6 @@ export class FileUploadComponent implements OnInit {
         }        
 
         this.coreService.renameFolder(this.user.username, folder).subscribe((res: User) => {
-            console.log(res);
             this.user = res;
             this.updateCurrentSubfoldersAndFiles();
         });
@@ -567,7 +560,6 @@ export class FileUploadComponent implements OnInit {
 
     doubleClickFile(file: Fitxer){
         this.coreService.getFile(file.id).subscribe((res: any) => {
-            //console.log(res);
             let dataType = res.type;
             let binaryData = [];
             binaryData.push(res);

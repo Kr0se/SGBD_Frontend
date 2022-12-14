@@ -49,7 +49,6 @@ export class RegisterComponent implements OnInit {
     this.user.password = this.form.controls['password'].value;
 
     this.authServie.registerUser(this.user).subscribe((res: boolean) => {
-      console.log(res);
       if(res){
         this.usernameExists = false;
         sessionStorage.setItem("accountCreatedSuccessfully", JSON.stringify(true));
