@@ -4,7 +4,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
-import { FileUploadService } from 'src/app/services/file-upload.service';
 import { FileDTO, ShareFileDTO } from '../model/file';
 import { Folder } from '../model/folder';
 import { Carpeta, Fitxer, User } from '../model/user';
@@ -136,7 +135,6 @@ export class FileUploadComponent implements OnInit {
   
     // Inject service 
     constructor(
-        private fileUploadService: FileUploadService,
         private router: Router,
         private coreService: CoreService,
         private location: LocationStrategy,
